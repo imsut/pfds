@@ -48,7 +48,7 @@ rbalance color a x b = T1 color a x b
 instance Ord a => Set RedBlackSet' a where
   empty = E1
 
-  member _ E1 = False
+  member _ E1   = False
   member x (T1 _ a y b)
     | x < y     = member x a
     | x > y     = member x b
@@ -56,7 +56,7 @@ instance Ord a => Set RedBlackSet' a where
 
   insert x s = T1 B a y b
     where
-      ins E1 = T1 R E1 x E1
+      ins E1        = T1 R E1 x E1
       ins n@(T1 color l v r)
         | x < v     = lbalance color (ins l) v r
         | x > v     = rbalance color l v (ins r)
@@ -88,7 +88,7 @@ rrbalance color a x b = T2 color a x b
 instance Ord a => Set RedBlackSet'' a where
   empty = E2
 
-  member _ E2 = False
+  member _ E2   = False
   member x (T2 _ a y b)
     | x < y     = member x a
     | x > y     = member x b
@@ -96,7 +96,7 @@ instance Ord a => Set RedBlackSet'' a where
 
   insert x s = T2 B a' y b'
     where
-      ins E2       = T2 R E2 x E2
+      ins E2        = T2 R E2 x E2
       ins n@(T2 color l v r)
         | x < v     = let insl = ins l
                       in case insl of
