@@ -12,12 +12,14 @@ randomInts n rng = let (x, rng') = next rng
 
 main :: IO ()
 main = do stdGen <- newStdGen
-          let (ns, _) = randomInts 10000 stdGen
-              ms = [1..10000]
+          let (ns, _) = randomInts 1000 stdGen
+              ms = [1..1000]
             in defaultMain [ bench "random 0" $ whnf (member 0 . foldr insert (empty :: RedBlackSet Int)) ns,
-                             bench "random 1" $ whnf (member 0 . foldr insert (empty :: RedBlackSet' Int)) ns,
-                             bench "random 2" $ whnf (member 0 . foldr insert (empty :: RedBlackSet'' Int)) ns,
-                             bench "sorted 0" $ whnf (member 10000 . foldr insert (empty :: RedBlackSet Int)) ms,
-                             bench "sorted 1" $ whnf (member 10000 . foldr insert (empty :: RedBlackSet' Int)) ms,
-                             bench "sorted 2" $ whnf (member 10000 . foldr insert (empty :: RedBlackSet'' Int)) ms
+                             bench "random 1" $ whnf (member 0 . foldr insert (empty :: RedBlackSet1 Int)) ns,
+                             bench "random 2" $ whnf (member 0 . foldr insert (empty :: RedBlackSet2 Int)) ns,
+                             bench "random 3" $ whnf (member 0 . foldr insert (empty :: RedBlackSet3 Int)) ns,
+                             bench "sorted 0" $ whnf (member 0 . foldr insert (empty :: RedBlackSet Int)) ms,
+                             bench "sorted 1" $ whnf (member 0 . foldr insert (empty :: RedBlackSet1 Int)) ms,
+                             bench "sorted 2" $ whnf (member 0 . foldr insert (empty :: RedBlackSet2 Int)) ms,
+                             bench "sorted 3" $ whnf (member 0 . foldr insert (empty :: RedBlackSet3 Int)) ms
                            ]
