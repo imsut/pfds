@@ -18,8 +18,12 @@ main = do stdGen <- newStdGen
                              bench "random 1" $ whnf (member 0 . foldr insert (empty :: RedBlackSet1 Int)) ns,
                              bench "random 2" $ whnf (member 0 . foldr insert (empty :: RedBlackSet2 Int)) ns,
                              bench "random 3" $ whnf (member 0 . foldr insert (empty :: RedBlackSet3 Int)) ns,
+                             bench "random 4" $ whnf (member 0 . foldr insert (empty :: RedBlackSet4 Int)) ns,
+                             bench "random 5" $ whnf (member 0 . foldr insert (empty :: RedBlackSet5 Int)) ns,
                              bench "sorted 0" $ whnf (member 0 . foldr insert (empty :: RedBlackSet Int)) ms,
                              bench "sorted 1" $ whnf (member 0 . foldr insert (empty :: RedBlackSet1 Int)) ms,
                              bench "sorted 2" $ whnf (member 0 . foldr insert (empty :: RedBlackSet2 Int)) ms,
-                             bench "sorted 3" $ whnf (member 0 . foldr insert (empty :: RedBlackSet3 Int)) ms
+                             bench "sorted 3" $ whnf (member 0 . foldr insert (empty :: RedBlackSet3 Int)) ms,
+                             bench "sorted 4" $ whnf (member 0 . foldr insert (empty :: RedBlackSet4 Int)) ms,
+                             bench "sorted 5" $ whnf (member 0 . foldr insert (empty :: RedBlackSet5 Int)) ms
                            ]

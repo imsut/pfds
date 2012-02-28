@@ -4,7 +4,9 @@ module RedBlackSet (
   RedBlackSet,
   RedBlackSet1,
   RedBlackSet2,
-  RedBlackSet3) where
+  RedBlackSet3,
+  RedBlackSet4,
+  RedBlackSet5) where
 
 import Set
 
@@ -65,9 +67,13 @@ instance Ord a => Set RedBlackSet1 a where
   insert x s = T1 B a y b
     where
       ins E1        = T1 R E1 x E1
-      ins n@(T1 color l v r)
-        | x < v     = lbalance color (ins l) v r
-        | x > v     = rbalance color l v (ins r)
+      ins n@(T1 B l v r)
+        | x < v     = lbalance B (ins l) v r
+        | x > v     = rbalance B l v (ins r)
+        | otherwise = n
+      ins n@(T1 R l v r)
+        | x < v     = T1 R (ins l) v r
+        | x > v     = T1 R l v (ins r)
         | otherwise = n
 
       T1 _ a y b = ins s
@@ -176,15 +182,108 @@ instance Ord a => Set RedBlackSet3 a where
       T3 _ a' y b' = ins s
 
 
+-- Exercise 3.10 (b) (P.29)
+data RedBlackSet4 a = E4 | T4 Color (RedBlackSet4 a) a (RedBlackSet4 a) deriving Show
+
+instance Ord a => Set RedBlackSet4 a where
+  empty = E4
+
+  member _ E4   = False
+  member x (T4 _ a y b)
+    | x < y     = member x a
+    | x > y     = member x b
+    | otherwise = True
+
+  insert x s = T4 B a' y b'
+    where
+      ins E4        = (T4 R E4 x E4, NoChild, Nothing, Nothing)
+      ins n@(T4 B l v r)
+        | x < v     = case ins l of
+                        (T4 R (T4 R a x b) y c, LChild, Just R, Just R) ->
+                          (T4 R (T4 B a x b) y (T4 B c v r), LChild, Just R, Just B)
+                        (T4 R a x (T4 R b y c), RChild, Just R, Just R) ->
+                          (T4 R (T4 B a x b) y (T4 B c v r), LChild, Just R, Just B)
+                        (insl@(T4 cc _ _ _), _, _, _)                   ->
+                          (T4 B insl v r, LChild, Just B, Just cc)
+        | x > v     = case ins r of
+                        (T4 R (T4 R a x b) y c, LChild, Just R, Just R) ->
+                          (T4 R (T4 B l v a) x (T4 B b y c), RChild, Just R, Just B)
+                        (T4 R a x (T4 R b y c), RChild, Just R, Just R) ->
+                          (T4 R (T4 B l v a) x (T4 B b y c), RChild, Just R, Just B)
+                        (insr@(T4 cc _ _ _), _, _, _)                   ->
+                          (T4 B l v insr, RChild, Just B, Just cc)
+        | otherwise = (n, NoChild, Nothing, Nothing)
+      ins n@(T4 R l v r)
+        | x < v     = case ins l of
+                        (insl@(T4 cc _ _ _), _, _, _)                   ->
+                          (T4 R insl v r, LChild, Just R, Just cc)
+        | x > v     = case ins r of
+                        (insr@(T4 cc _ _ _), _, _, _)                   ->
+                          (T4 R l v insr, RChild, Just R, Just cc)
+        | otherwise = (n, NoChild, Nothing, Nothing)
+
+      (T4 _ a' y b', _, _, _) = ins s
+
+-- Exercise 3.10 (b) (P.29)
+data RedBlackSet5 a = E5 | T5 Color (RedBlackSet5 a) a (RedBlackSet5 a) deriving Show
+
+llbalance5 :: Color -> RedBlackSet5 a -> a -> RedBlackSet5 a -> RedBlackSet5 a
+llbalance5 B (T5 R (T5 R a x b) y c) z d = T5 R (T5 B a x b) y (T5 B c z d)
+llbalance5 color a x b = T5 color a x b
+
+lrbalance5 :: Color -> RedBlackSet5 a -> a -> RedBlackSet5 a -> RedBlackSet5 a
+lrbalance5 B (T5 R a x (T5 R b y c)) z d = T5 R (T5 B a x b) y (T5 B c z d)
+lrbalance5 color a x b = T5 color a x b
+
+rlbalance5 :: Color -> RedBlackSet5 a -> a -> RedBlackSet5 a -> RedBlackSet5 a
+rlbalance5 B a x (T5 R (T5 R b y c) z d) = T5 R (T5 B a x b) y (T5 B c z d)
+rlbalance5 color a x b = T5 color a x b
+
+rrbalance5 :: Color -> RedBlackSet5 a -> a -> RedBlackSet5 a -> RedBlackSet5 a
+rrbalance5 B a x (T5 R b y (T5 R c z d)) = T5 R (T5 B a x b) y (T5 B c z d)
+rrbalance5 color a x b = T5 color a x b
+
+instance Ord a => Set RedBlackSet5 a where
+  empty = E5
+
+  member _ E5   = False
+  member x (T5 _ a y b)
+    | x < y     = member x a
+    | x > y     = member x b
+    | otherwise = True
+
+  insert x E5 = T5 B E5 x E5
+  insert x n@(T5 _ l v r)
+    | x < v     = let T5 _ a y b = insl n in T5 B a y b
+    | x > v     = let T5 _ a y b = insr n in T5 B a y b
+    | otherwise = n
+      where
+        insl (T5 color E5 v r) = T5 color (T5 R E5 x E5) v r
+        insl n@(T5 color l@(T5 _ l2 v2 r2) v r)
+          | x < v2 = llbalance5 color (insl l) v r
+          | x > v2 = lrbalance5 color (insr l) v r
+          | otherwise = n
+        insr (T5 color l v E5) = T5 color l v (T5 R E5 x E5)
+        insr n@(T5 color l v r@(T5 _ l2 v2 r2))
+          | x < v2 = rlbalance5 color l v (insl r)
+          | x > v2 = rrbalance5 color l v (insr r)
+          | otherwise = n
+
 st0 :: RedBlackSet Int
-st0 = foldr insert empty [1..15] :: RedBlackSet Int
+st0 = foldr insert empty $ reverse [1..63] :: RedBlackSet Int
 
 st1 :: RedBlackSet1 Int
-st1 = foldr insert empty [1..15] :: RedBlackSet1 Int
+st1 = foldr insert empty $ reverse [1..63] :: RedBlackSet1 Int
 
 st2 :: RedBlackSet2 Int
-st2 = foldr insert empty [1..15] :: RedBlackSet2 Int
+st2 = foldr insert empty $ reverse [1..63] :: RedBlackSet2 Int
 
 st3 :: RedBlackSet3 Int
-st3 = foldr insert empty [1..15] :: RedBlackSet3 Int
+st3 = foldr insert empty $ reverse [1..63] :: RedBlackSet3 Int
+
+st4 :: RedBlackSet4 Int
+st4 = foldr insert empty $ reverse [1..63] :: RedBlackSet4 Int
+
+st5 :: RedBlackSet5 Int
+st5 = foldr insert empty $ reverse [1..63] :: RedBlackSet5 Int
 
