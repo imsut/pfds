@@ -1,7 +1,24 @@
-module TrinomialHeap where
+module TrinomialHeap
+       (
+         TrinomialHeap(..)
+       , module Heap
+
+       -- debug
+       , mrg
+       , removeMinDigit
+       , Tree(..)
+       , Digit(..)
+       ) where
 
 import Heap
 
+{-
+        1 3 9 27 81
+  10 -> 1 0 1
+  20 -> 2 0 2
+  99 ->     2     1
+ 100 -> 1 0 2  0  1
+-}
 data Tree a = Node a [(Tree a, Tree a)] deriving Show
 data Digit a = Zero | One (Tree a) | Two (Tree a, Tree a) deriving Show
 newtype TrinomialHeap a = TH [Digit a] deriving Show
@@ -30,7 +47,7 @@ insTree t ts@(One t' : ts')
   | otherwise        = Two (t, t') : ts'
 insTree t ts@(Two (t1, t2) : ts')
   | rank t < rank t1 = One t : ts
-  | otherwise        = insTree (link t t1 t2) ts'
+  | otherwise        = Zero : insTree (link t t1 t2) ts'
 
 mrg :: Ord a => [Digit a] -> [Digit a] -> [Digit a]
 mrg ds1 [] = ds1
@@ -51,8 +68,8 @@ mrg ds1@(Two (t1', t1'') : ds1') ds2@(One t2 : ds2')
   | rank t1' > rank t2 = One t2 : mrg ds1 ds2'
   | otherwise          = One (link t1' t1'' t2) : mrg ds1' ds2'
 mrg ds1@(Two (t1', t1'') : ds1') ds2@(Two (t2', t2'') : ds2')
-  | rank t1' < rank t2' = Two (t1', t1'') : ds2
-  | rank t1' > rank t2' = Two (t2', t2'') : ds1
+  | rank t1' < rank t2' = Two (t1', t1'') : mrg ds1' ds2
+  | rank t1' > rank t2' = Two (t2', t2'') : mrg ds1 ds2'
   | otherwise           = One t1' : One (link t1'' t2' t2'') : mrg ds1' ds2'
 
 removeMinDigit :: Ord a => [Digit a] -> (Digit a, [Digit a])
