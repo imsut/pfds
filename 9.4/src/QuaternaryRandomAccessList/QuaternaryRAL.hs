@@ -75,7 +75,7 @@ lookupDigit i (Digit4 t1 t2 t3 t4 : ds) r
 lookupTree :: Ord a => Int -> Tree a -> Int -> a
 lookupTree 0 (Leaf v) _ = v
 lookupTree i (Node t1 t2 t3 t4) n
-  | i < m     = lookupTree (i - m * 0) t1 m
+  | i < m * 1 = lookupTree (i - m * 0) t1 m
   | i < m * 2 = lookupTree (i - m * 1) t2 m
   | i < m * 3 = lookupTree (i - m * 2) t3 m
   | otherwise = lookupTree (i - m * 3) t4 m
@@ -106,7 +106,7 @@ updateDigit i v (Digit4 t1 t2 t3 t4 : ds) r
 updateTree :: Ord a => Int -> a -> Tree a -> Int -> Tree a
 updateTree 0 v (Leaf _) _ = (Leaf v)
 updateTree i v (Node t1 t2 t3 t4) n
-  | i < m     = Node (updateTree (i - m * 0) v t1 m) t2 t3 t4
+  | i < m * 1 = Node (updateTree (i - m * 0) v t1 m) t2 t3 t4
   | i < m * 2 = Node t1 (updateTree (i - m * 1) v t2 m) t3 t4
   | i < m * 3 = Node t1 t2 (updateTree (i - m * 2) v t3 m) t4
   | otherwise = Node t1 t2 t3 (updateTree (i - m * 3) v t4 m)
@@ -128,5 +128,4 @@ instance RandomAccessList QuaternaryRAL where
   tail (QL ds) = QL $ (snd . unconsTree) ds
 
   lookup i (QL ds) = lookupDigit i ds 1
-
   update i v (QL ds) = QL $ updateDigit i v ds 1
