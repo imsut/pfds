@@ -1,93 +1,77 @@
 module TrinomialHeap
        (
+       -- export data constructor for testing purpose
          TrinomialHeap(..)
        , module Heap
 
-       -- debug
+       -- export only for debugging purpose
        , mrg
-       , removeMinDigit
+       , removeMinTree
        , Tree(..)
        , Digit(..)
        ) where
 
 import Heap
 
-{-
-        1 3 9 27 81
-  10 -> 1 0 1
-  20 -> 2 0 2
-  99 ->     2     1
- 100 -> 1 0 2  0  1
--}
-data Tree a = Node a [(Tree a, Tree a)] deriving Show
-data Digit a = Zero | One (Tree a) | Two (Tree a, Tree a) deriving Show
-newtype TrinomialHeap a = TH [Digit a] deriving Show
-
-rank :: Tree a -> Int
-rank (Node _ ts) = length ts
-
-root :: Ord a => Digit a -> a
-root Zero = undefined
-root (One (Node v _)) = v
-root (Two (Node v1 _, Node v2 _))
-  | v1 < v2   = v1
-  | otherwise = v2
+-- add Eq just for test
+data Tree a = Node a [(Tree a, Tree a)] deriving (Show, Eq)
+data Digit a = Zero | One (Tree a) | Two (Tree a, Tree a) deriving (Show, Eq)
+newtype TrinomialHeap a = TH [Digit a] deriving (Show, Eq)
 
 link :: Ord a => Tree a -> Tree a -> Tree a -> Tree a
 link t1@(Node v1 c1) t2@(Node v2 c2) t3@(Node v3 c3)
   | v1 <= v2 && v1 <= v3 = Node v1 ((t2, t3):c1)
   | v2 <= v3 && v2 <= v1 = Node v2 ((t3, t1):c2)
   | v3 <= v1 && v3 <= v2 = Node v3 ((t1, t2):c3)
+  | otherwise            = error "shouldn't fail here"
 
 insTree :: Ord a => Tree a -> [Digit a] -> [Digit a]
-insTree t []         = [One t]
-insTree t (Zero:ts)  = One t : ts
-insTree t ts@(One t' : ts')
-  | rank t < rank t' = One t : ts
-  | otherwise        = Two (t, t') : ts'
-insTree t ts@(Two (t1, t2) : ts')
-  | rank t < rank t1 = One t : ts
-  | otherwise        = Zero : insTree (link t t1 t2) ts'
+insTree t []                   = One t : []
+insTree t (Zero : ts)          = One t : ts
+insTree t (One t' : ts')       = Two (t, t') : ts'
+insTree t (Two (t1, t2) : ts') = Zero : insTree (link t t1 t2) ts'
+
+add :: Ord a => Digit a -> Digit a -> (Digit a, Digit a)
+add x Zero = (x, Zero)
+add Zero x = (x, Zero)
+add (One t1) (One t2) = (Two (t1, t2), Zero)
+add (One t1) (Two (t2a, t2b)) = (Zero, One $ link t1 t2a t2b)
+add (Two (t1a, t1b)) (One t2) = (Zero, One $ link t1a t1b t2)
+-- any one of t1a, t1b, t2a, and t2b can appear as fst of a tuple to be returned
+add (Two (t1a, t1b)) (Two (t2a, t2b)) = (One t1a, One $ link t1b t2a t2b)
 
 mrg :: Ord a => [Digit a] -> [Digit a] -> [Digit a]
 mrg ds1 [] = ds1
 mrg [] ds2 = ds2
-mrg ds1@(Zero : ds1') ds2@(Zero : ds2') = mrg ds1' ds2'
-mrg ds1@(d1 : ds1') ds2@(Zero : ds2') = d1 : mrg ds1' ds2
-mrg ds1@(Zero : ds1') ds2@(d2 : ds2') = d2 : mrg ds1 ds2'
-mrg ds1@(One t1 : ds1') ds2@(One t2 : ds2')
-  | rank t1 < rank t2 = One t1 : mrg ds1' ds2
-  | rank t1 > rank t2 = One t2 : mrg ds1 ds2'
-  | otherwise         = Two (t1, t2) : mrg ds1' ds2'
-mrg ds1@(One t1 : ds1') ds2@(Two (t2', t2'') : ds2')
-  | rank t1 < rank t2' = One t1 : mrg ds1' ds2
-  | rank t1 > rank t2' = Two (t2', t2'') : mrg ds1 ds2'
-  | otherwise          = One (link t1 t2' t2'') : mrg ds1' ds2'
-mrg ds1@(Two (t1', t1'') : ds1') ds2@(One t2 : ds2')
-  | rank t1' < rank t2 = Two (t1', t1'') : mrg ds1' ds2
-  | rank t1' > rank t2 = One t2 : mrg ds1 ds2'
-  | otherwise          = One (link t1' t1'' t2) : mrg ds1' ds2'
-mrg ds1@(Two (t1', t1'') : ds1') ds2@(Two (t2', t2'') : ds2')
-  | rank t1' < rank t2' = Two (t1', t1'') : mrg ds1' ds2
-  | rank t1' > rank t2' = Two (t2', t2'') : mrg ds1 ds2'
-  | otherwise           = One t1' : One (link t1'' t2' t2'') : mrg ds1' ds2'
-
-removeMinDigit :: Ord a => [Digit a] -> (Digit a, [Digit a])
-removeMinDigit [] = error "empty heap"
-removeMinDigit (Zero : ds) = removeMinDigit ds
-removeMinDigit (d : []) = (d, [])
-removeMinDigit (d : ds)
-  | root d < root d' = (d, ds)
-  | otherwise        = (d', d : ds')
+mrg (d1 : ds1) (d2 : ds2) = sumd : rest
   where
-    (d', ds') = removeMinDigit ds
+    (sumd, carryd) = add d1 d2
+    rest = case carryd of
+      Zero  -> mrg ds1 ds2
+      One t -> insTree t (mrg ds1 ds2)
+      _     -> error "carry cannot be Two"
 
-deleteMin' :: Ord a => (Digit a, [Digit a]) -> [Digit a]
-deleteMin' (Zero, _) = error "removeMinDigit shouldn't return (Zero, _)"
-deleteMin' (One (Node _ ts), ds') = mrg ds' $ map Two $ reverse ts
-deleteMin' (Two (t1@(Node v1 ts1), t2@(Node v2 ts2)), ds')
-  | v1 < v2   = mrg (insTree t2 ds') (map Two $ reverse ts1)
-  | otherwise = mrg (insTree t1 ds') (map Two $ reverse ts2)
+removeMinTree :: Ord a => [Digit a] -> (Tree a, [Digit a])
+removeMinTree [] = error "empty list of digits"
+removeMinTree [Zero] = error "Zero shouldn't appear as the most significant digit"
+removeMinTree [One t] = (t, [])
+removeMinTree [Two (t1@(Node v1 _), t2@(Node v2 _))]
+  | v1 < v2   = (t1, [One t2])
+  | otherwise = (t2, [One t1])
+removeMinTree (Zero : ds) = (t, Zero : ds')
+  where
+    (t, ds') = removeMinTree ds
+removeMinTree (d@(One t@(Node v _)) : ds)
+  | v < v'    = (t, Zero : ds)
+  | otherwise = (t', d : ds')
+  where
+    (t'@(Node v' _), ds') = removeMinTree ds
+removeMinTree (d@(Two (t1@(Node v1 _), t2@(Node v2 _))) : ds)
+  | v1 <= v2 && v1 < v' = (t1, One t2 : ds)
+  | v2 <  v1 && v2 < v' = (t2, One t1 : ds)
+  | otherwise           = (t', d : ds')
+  where
+    (t'@(Node v' _), ds') = removeMinTree ds
 
 instance Heap TrinomialHeap where
   empty = TH []
@@ -96,7 +80,7 @@ instance Heap TrinomialHeap where
   insert x (TH ds) = TH (insTree (Node x []) ds)
   merge (TH ds1) (TH ds2) = TH (mrg ds1 ds2)
 
-  findMin (TH ds) = case removeMinDigit ds of
-      (Zero, _) -> error "removeMinDigit shouldn't return (Zero, _)"
-      (d, _)    -> root d
-  deleteMin (TH ds) = TH (deleteMin' $ removeMinDigit ds)
+  findMin (TH ds) = case removeMinTree ds of
+    (Node v _, _) -> v
+  deleteMin (TH ds) = case removeMinTree ds of
+    (Node _ c, ds') -> TH $ mrg (map Two $ reverse c) ds'
