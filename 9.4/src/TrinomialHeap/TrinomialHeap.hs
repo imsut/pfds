@@ -13,10 +13,9 @@ module TrinomialHeap
 
 import Heap
 
--- add Eq just for test
-data Tree a = Node a [(Tree a, Tree a)] deriving (Show, Eq)
-data Digit a = Zero | One (Tree a) | Two (Tree a, Tree a) deriving (Show, Eq)
-newtype TrinomialHeap a = TH [Digit a] deriving (Show, Eq)
+data Tree a = Node a [(Tree a, Tree a)] deriving Show
+data Digit a = Zero | One (Tree a) | Two (Tree a, Tree a) deriving Show
+newtype TrinomialHeap a = TH [Digit a] deriving Show
 
 link :: Ord a => Tree a -> Tree a -> Tree a -> Tree a
 link t1@(Node v1 c1) t2@(Node v2 c2) t3@(Node v3 c3)
