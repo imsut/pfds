@@ -80,6 +80,7 @@ initialCtx ds = Context { frontDigits = []
                         , treeContext = []
                         }
 
+updateListCtx :: Context a -> Digit a -> Context a
 updateListCtx ctx d = Context { frontDigits = d : frontDigits ctx
                               , rearDigits = Prelude.tail (rearDigits ctx)
                               , digitContext = digitContext ctx
@@ -87,7 +88,7 @@ updateListCtx ctx d = Context { frontDigits = d : frontDigits ctx
                               }
 
 walkDigits :: Ord a => Int -> [Digit a] -> Int -> Context a -> (Tree a, Context a)
-walkDigits i [] _ _ = error "index out of bounds"
+walkDigits _ [] _ _ = error "index out of bounds"
 walkDigits i (Digit1 t1 : ds) n ctx
   | i < n * 1 = walkTree (i - n * 0) t1 n (ctx { digitContext = Digit1Go1 })
   | otherwise = walkDigits (i - n * 1) ds (n * 4) (updateListCtx ctx (Digit1 t1))
@@ -109,6 +110,7 @@ walkDigits i (Digit4 t1 t2 t3 t4 : ds) n ctx
 
 walkTree :: Ord a => Int -> Tree a -> Int -> Context a -> (Tree a, Context a)
 walkTree 0 (Leaf v) _ ctx = (Leaf v, ctx)
+walkTree _ (Leaf _) _ _   = error "coming to Leaf, but index is still > 0"
 walkTree i (Node t1 t2 t3 t4) n ctx
   | i < m * 1 = walkTree (i - m * 0) t1 m (ctx { treeContext = (GoDown1 t2 t3 t4) : treeContext ctx })
   | i < m * 2 = walkTree (i - m * 1) t2 m (ctx { treeContext = (GoDown2 t1 t3 t4) : treeContext ctx })
@@ -128,6 +130,7 @@ instance RandomAccessList QuaternaryRAL where
   head (QL (Digit2 (Leaf v) _ : _)) = v
   head (QL (Digit3 (Leaf v) _ _ : _)) = v
   head (QL (Digit4 (Leaf v) _ _ _ : _)) = v
+  head (QL _) = error "list head should be Leaf"
 
   tail (QL ds) = QL $ (snd . unconsTree) ds
 
@@ -135,9 +138,9 @@ instance RandomAccessList QuaternaryRAL where
     (Leaf v, _) -> v
     _           -> error "walkDigits shouldn't return non-leaf node"
 
-  update i v (QL ds) = QL $ mappend (reverse frontDigits) (newDigit digitCtx : rearDigits)
+  update i v (QL ds) = QL $ mappend (reverse fds) (newDigit digitCtx : rds)
     where
-      (Leaf _, Context frontDigits (_ : rearDigits) digitCtx treeCtx) = walkDigits i ds 1 (initialCtx ds)
+      (Leaf _, Context fds (_ : rds) digitCtx treeCtx) = walkDigits i ds 1 (initialCtx ds)
 
       newDigit Digit1Go1 = Digit1 newTree
       newDigit (Digit2Go1 t2) = Digit2 newTree t2
