@@ -36,15 +36,37 @@
     <link rel="shortcut icon" href="favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
-    <style type="text/css">
-      h2 {
-        font-size: 120%;
-      }
-      .step {
-      height: 700px;
-      border: 1px red dotted;
-      }
-    </style>
+<style type="text/css">
+h1 {
+  margin-top: 80px;
+  font-size: 160%;
+}
+h2 {
+  margin-bottom: 20px;
+  font-size: 120%;
+}
+ul {
+  list-style-type: disc;
+}
+ul li {
+  margin-left: 40px;
+  font-size: 90%;
+}
+
+
+div.title p {
+  text-align: right;
+}
+div.section h2 {
+  margin-top: 120px;
+  font-size: 280%;
+}
+
+.step {
+  height: 700px;
+/*  border: 1px red dotted;*/
+}
+</style>
 </head>
 
 <!--
@@ -112,76 +134,71 @@
         It will not be rotated or scaled.
 
     -->
-    <div class="step" data-x="0" data-y="0" data-z="0" data-rotate-x="-90" data-rotate-z="-45" data-scale="1">
+    <div class="step title" data-x="0" data-y="0" data-z="0" data-rotate-x="-90" data-rotate-z="-45" data-scale="1">
       <h1>PFDS 9.4<br />Trinary and Quaternary Numbers</h1>
+      <p>Sep 23, 2012</p>
       <p>Ken Kawamoto</p>
     </div>
 
     <div id="overview" class="step" data-x="0" data-y="0" data-scale="4">
     </div>
 
-    <div class="step" data-x="-100" data-y="-200" data-rotate-z="-45" data-scale="3">
-      <h2 style="font-size: 300%;">Definitions</h2>
+    <div class="step section" data-x="-300" data-y="-200" data-rotate-z="-45" data-scale="3">
+      <h2>Definitions</h2>
     </div>
 
-    <div class="step" data-x="-1200" data-y="-1200" data-rotate-z="-380">
-      <h2>Def 9.4: Complete k-ary leaf trees</h2>
-      <blockquote>
-        complete k-ary tree of rank 0 is a leaf
-      </blockquote>
-      <blockquote>
-        complete k-ary tree of rank r > 0 is a node with k children,
-        each of which is a complete k-ary tree of rank r - 1
-      </blockquote>
+    <div class="step" data-x="-1000" data-y="-800" data-rotate-z="-380">
+      <h2>Def 9.4: Complete k-ary trees</h2>
+      <ul>
+        <li>complete k-ary tree of rank 0 is a leaf</li>
+        <li>complete k-ary tree of rank r > 0 is a node with k children, each of which is a complete k-ary tree of rank r - 1</li>
+        <li>complete k-ary leaf tree is a complete k-ary tree with ...</li>
+      </ul>
     </div>
 
     <div class="step" data-x="0" data-y="-3000" data-z="20000">
       <p><img src="images/def_9_4.png" title="figure for definition 9.4" style="width: 100%;" /></p>
     </div>
 
-    <div class="step" data-x="100" data-y="-200" data-rotate-z="820">
+    <div class="step" data-x="100" data-y="0" data-rotate-z="820">
       <h2>Def 9.5: k-nomial trees</h2>
-      <blockquote>
-        k-nomial tree of rank r is a node with k-1 children of each rank from r-1 to 0.
-      </blockquote>
-      <blockquote>
-        k-nomial tree of rank r > 0 is a k-nomial tree of rank r-1 to which k-1 other k-nomial trees of rank r-1 have been added as the leftmost children.
-      </blockquote>
+      <ul>
+        <li>k-nomial tree of rank r is a node with k-1 children of each rank from r-1 to 0.</li>
+        <li>k-nomial tree of rank r > 0 is a k-nomial tree of rank r-1 to which k-1 other k-nomial trees of rank r-1 have been added as the leftmost children.</li>
+      </ul>
     </div>
 
     <div class="step" data-x="100" data-y="-200" data-z="-10000" data-rotate-x="180">
       <p><img src="images/def_9_5.png" title="figure for definition 9.5" style="width: 100%;" /></p>
     </div>
 
-    <div class="step" data-x="-700" data-y="500" data-rotate-z="-150">
+    <div class="step" data-x="-700" data-y="700" data-rotate-z="-150">
       <h2>Def 9.6: k-ary pennants</h2>
-      <blockquote>
-        k-nomial tree of rank r is a node with k-1 children of each rank from r-1 to 0.
-      </blockquote>
-      <blockquote>
-        k-nomail tree of rank r > 0 is a k-nomial tree of rank r-1 to which k-1 other k-nomial trees of rank r-1 have been added as the leftmost children.
-      </blockquote>
+      <ul>
+        <li>k-nomial tree of rank r is a node with k-1 children of each rank from r-1 to 0.</li>
+        <li>k-nomail tree of rank r > 0 is a k-nomial tree of rank r-1 to which k-1 other k-nomial trees of rank r-1 have been added as the leftmost children.</li>
+      </ul>
     </div>
 
     <div class="step" data-x="-1000" data-y="500" data-z="0" data-rotate-x="90">
       <p><img src="images/def_9_6.png" title="figure for definition 9.6" style="width: 100%;" /></p>
     </div>
 
-    <div class="step" data-x="1000" data-y="800" data-rotate-z="90" data-scale="3">
-      <h2 style="font-size: 300%;">Exercises</h2>
+    <div class="step section" data-x="1000" data-y="800" data-rotate-z="90" data-scale="3">
+      <h2>Exercises</h2>
     </div>
 
-    <div class="step" data-x="1200" data-y="-300" data-z="-1000" data-rotate-z="90">
+    <div class="step" data-x="900" data-y="-300" data-z="-1000" data-rotate-z="90">
       <h2>Ex. 9.17</h2>
       <blockquote>Implement trinomial heaps</blockquote>
     </div>
 
-    <div class="step" data-x="1200" data-y="600" data-z="-1000" data-rotate-z="-270">
+    <div class="step" data-x="900" data-y="600" data-z="-1000" data-rotate-z="-270">
       <h2>Ex. 9.18</h2>
       <blockquote>Implement zeroless quaternary random-access lists</blockquote>
     </div>
 
-    <div class="step" data-x="1200" data-y="1500" data-z="-1000" data-rotate-x="360" data-rotate-z="90">
+    <div class="step" data-x="900" data-y="1500" data-z="-1000" data-rotate-x="360" data-rotate-z="90">
       <h2>Ex. 9.19</h2>
       <blockquote>Implement skew trinary random-access lists</blockquote>
     </div>
